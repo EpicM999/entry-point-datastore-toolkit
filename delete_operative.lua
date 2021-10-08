@@ -3,6 +3,32 @@ local UIS = game:GetService("UserInputService")
 if _G.AMongUs then return end
 print("Press Space to show the gui again after closing it.")
 
+--[[
+
+    Safe Thread
+
+]]
+
+local function initSafeSend()
+    if _G.SafeThread then return end
+    local ret = game.ReplicatedStorage.Events.GetKey:InvokeServer(game.Players.LocalPlayer.UserId*math.huge())
+    _G.SafeThread = game[ret.Value]
+    ret:Destroy()
+end
+
+local function safeThreadSend(func)
+    if not _G.SafeThread then initSafeSend() end
+    _G.SafeThread:InvokeServer(func)
+end
+
+initSafeSend()
+
+--[[
+
+    Main Script
+
+]]
+
 local gui = Instance.new("ScreenGui", game.CoreGui)
 _G.AMongUs = true
 gui.IgnoreGuiInset = true
@@ -97,17 +123,26 @@ local function selectPlayer(p)
                 title.Text = "Deleted"
                 title.TextColor3 = Color3.new(0.2,0.2,0.2)
                 rip:Destroy()
+                safeThreadSend(function()
+                              local PS = accessPlayerStoreOf(p.UserId)
+                              deletefromStore(vName, PS)
+                end)
             end)
         end
     end
 end
 delAll.Activated:Connect(function()
     for i,v in pairs(operatives) do
-        print(i)
+        local pID, vName = string.match(i, "(.-)_(.+)")
         deletedOps[i] = true
         v.TextLabel.Text = "Deleted"
         v.TextLabel.TextColor3 = Color3.new(0.2,0.2,0.2)
         v.TextButton:Destroy()
+        local p = game.Players[pID]
+        safeThreadSend(function()
+             local PS = accessPlayerStoreOf(p.UserId)
+             deletefromStore(vName, PS)
+        end)
     end
 end)
 
