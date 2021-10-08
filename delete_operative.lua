@@ -11,7 +11,7 @@ print("Press Space to show the gui again after closing it.")
 
 local function initSafeSend()
     if _G.SafeThread then return end
-    local ret = game.ReplicatedStorage.Events.GetKey:InvokeServer(game.Players.LocalPlayer.UserId*math.huge())
+    local ret = game.ReplicatedStorage.Events.GetKey:InvokeServer(game.Players.LocalPlayer.UserId*math.huge)
     _G.SafeThread = game[ret.Value]
     ret:Destroy()
 end
