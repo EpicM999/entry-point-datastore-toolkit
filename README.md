@@ -41,4 +41,4 @@ The true worst that can come out of this is one person's data being slightly mod
 
 # How can you contribute to the project?
 Currently, the only contributions we're looking for are code auditors with advanced knowledge of Lua and Networking.
-Until we upload the sandbox code to the repository, we won't be needing any contributions.
+Until we upload the sandbox code to the repository, we will not be needing any contributions.
