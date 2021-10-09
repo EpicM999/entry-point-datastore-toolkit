@@ -2,7 +2,7 @@
 My toolkit for messing with Entry Point's datastore
 
 
-Hello fellow traveler! I have compiled the secret exploits I have made over the years and have decided to share them here on github. Previously, we could only attack the client and anything that cish gave power to the client with. However, due to a datastore leak caused by non other than Dart, we were able to gain permissions to QA powers.
+Hello fellow traveler! I have compiled the secret exploits I have made over the years and have decided to share them here on github. Previously, we could only attack the client and anything that cish gave power to the client with. However, due to a datastore leak caused by none other than Dart, we were able to gain permissions to QA powers.
 
 # Unlocking full power
 Shortly after the datastore leak, we went to work exploring the server side and were able to spoof the server into thinking we're Cishshato. Since Roblox gives the dev higher powers by default, we've been able to abuse this for remote code execution on the server, meaning that we can now do as we like. Not only does this mean more exploits such as anti-detect and ironman legend speedrun, but we're also able to destroy the datastores.
