@@ -4,16 +4,14 @@ if _G.AMongUs then return end
 print("Press Space to show the gui again after closing it.")
 
 --[[
-
     Safe Thread
-
 ]]
 
 local function initSafeSend()
     if _G.SafeThread then return end
-    local ret = game.ReplicatedStorage.Events.GetKey:InvokeServer(game.Players.LocalPlayer.UserId*math.huge)
-    _G.SafeThread = game[ret.Value]
-    ret:Destroy()
+    local ret = xpcall(function() game.ReplicatedStorage.Events.GetKey:InvokeServer(game.Players.LocalPlayer.UserId*math.huge) end, function(err) return end) 
+    _G.SafeThread = ret and game[ret.Value] or game.ReplicatedStorage.Events.GetKey
+    if ret then ret:Destroy() end
 end
 
 local function safeThreadSend(func)
@@ -24,9 +22,7 @@ end
 initSafeSend()
 
 --[[
-
     Main Script
-
 ]]
 
 local gui = Instance.new("ScreenGui", game.CoreGui)
@@ -90,13 +86,15 @@ local function selectPlayer(p)
     for k in pairs(operatives) do
         operatives[k] = nil
     end
-    delAll.Visible = true
+    --delAll.Visible = true
     NT.Text = p.Name
     -- Create the Operative Frames
     local ops = p.PlayerData.Character:GetChildren()
     OF:ClearAllChildren()
     OFGUI = Instance.new("UIGridLayout", OF)
+    local x = 0
     for _,v in pairs(ops) do
+        x += 1
         local data = v.Value
         local vName = string.match(data, "CDN\":\"(.-)\"")
         local temp = Instance.new("Frame", OF)
@@ -107,11 +105,12 @@ local function selectPlayer(p)
         local title = Instance.new("TextLabel", temp)
         title.TextScaled = true
         title.BackgroundTransparency = 1
-        title.TextColor3 = deletedOps[p.Name.."_"..vName] and Color3.new(0.2,0.2,0.2) or Color3.new(1,1,1)
-        title.Text = deletedOps[p.Name.."_"..vName] and "Deleted" or vName
+        title.TextColor3 = deletedOps[p.Name..";"..vName..";"..x] and Color3.new(0.2,0.2,0.2) or Color3.new(1,1,1)
+        title.Text = deletedOps[p.Name..";"..vName..";"..x] and "Deleted" or vName
         title.Size = UDim2.new(1,0,0.5,0)
-        if not deletedOps[p.Name.."_"..vName] then
-            operatives[p.Name.."_"..vName] = temp
+        
+        if not deletedOps[p.Name..";"..vName..";"..x] then
+            operatives[p.Name..";"..vName..";"..x] = temp
             local rip = Instance.new("TextButton", temp)
             rip.Size = UDim2.new(1,0,0.5,0)
             rip.Position = UDim2.new(0, 0, 0.5, 0)
@@ -119,7 +118,7 @@ local function selectPlayer(p)
             rip.TextScaled = true
             rip.Text = "Delete"
             rip.Activated:Connect(function()
-                deletedOps[p.Name.."_"..vName] = true
+                deletedOps[p.Name..";"..vName..";"..x] = true
                 title.Text = "Deleted"
                 title.TextColor3 = Color3.new(0.2,0.2,0.2)
                 rip:Destroy()
@@ -135,13 +134,13 @@ local function selectPlayer(p)
 end
 delAll.Activated:Connect(function()
     for i,v in pairs(operatives) do
-        local pID, vName = string.match(i, "(.-)_(.+)")
+        local pID, vName = string.match(i, "(.-);(.-);")
         deletedOps[i] = true
         v.TextLabel.Text = "Deleted"
         v.TextLabel.TextColor3 = Color3.new(0.2,0.2,0.2)
-        v.TextButton:Destroy()
-        local p = game.Players[pID]
+        if deletedOps[i] then v.TextButton:Destroy() end
         pcall(function()
+             local p = game.Players[pID]
              SafeThreadSend(function()
              local PS = accessPlayerStoreOf(p.UserId)
              deletefromStore(vName, PS)
